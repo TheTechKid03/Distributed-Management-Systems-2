@@ -1,0 +1,24 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "C/C++ Runner: Debug Session",
+      "type": "cppdbg",
+      "request": "launch",
+      "args": [],
+      "stopAtEntry": false,
+      "externalConsole": true,
+      "cwd": "t:/TheTechKid's Starter Pack OTG 4.0/DSA612S - (Distributed Systems and Applications)/Assignments/DSA621S Assignment 2/DSA621S-Assignment-2",
+      "program": "t:/TheTechKid's Starter Pack OTG 4.0/DSA612S - (Distributed Systems and Applications)/Assignments/DSA621S Assignment 2/DSA621S-Assignment-2/build/Debug/outDebug",
+      "MIMode": "gdb",
+      "miDebuggerPath": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ]
+    }
+  ]
+}
