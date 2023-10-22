@@ -33,16 +33,15 @@ type Request_info record {
 };
 
 
-listener kafka:Listener orderListener = new (kafka:DEFAULT_URL, {
-    groupId: "order-group-id",
+listener kafka:Listener Admin_service = new (kafka:DEFAULT_URL, {
+    groupId: "Patient data consumer",
     topics: [
         "Patient-Requests"
     ]
 });
 
 
-service on orderListener {
-
+service on Admin_service {
     remote function onConsumerRecord(Request_info[] requests) returns error? {
         // The set of requests received by the service are processed one by one.
         from Request_info Appointment in requests
@@ -51,6 +50,6 @@ service on orderListener {
             log:printInfo(string `Received valid request for ${Appointment.Patient_name + " " + Appointment.Patient_last_name}`);
             map<json> doc = <map<json>>Appointment.toJson();
             check mongoClient->insert(doc, Patient_request_published);
+            };
         };
     }
-}
