@@ -55,7 +55,7 @@ function Add_a_request(kafka:Producer Patient_producer) returns error? {
     request.Patient_name = io:readln("Enter Patient First Name: ");
     request.Patient_last_name = io:readln("Enter Patient Last Name: ");
     request.Patient_age = check int:fromString(io:readln("Enter Patient Age: "));
-    request.Patient_phone_number = check int:fromString(io:readln("Enter Your Phone Number: "));
+    request.Patient_phone_number = check int:fromString(io:readln("Enter Your Phone Number: +264"));
     request.Specialist_visiting = io:readln("Enter The Specialist you want to visit: ");
 
     kafka:Error? send = Patient_producer->send({
@@ -73,19 +73,13 @@ function Add_a_request(kafka:Producer Patient_producer) returns error? {
 
 function View_my_requests(kafka:Consumer consumer) returns error? {
     Request_info[] requests = check consumer->pollPayload(60);
-    string userId = io:readln("Enter user ID");
+    string Request = io:readln("Enter Name & Surname");
 
     from var Appointment in requests
-    where Appointment.Request_id === userId
+    where (Appointment.Request_id + Appointment.Patient_name) === Request
     do {
         io:println(requests);
     };
-
-    foreach var Appointments in requests {
-        if Appointments.Request_id === userId {
-            io:println(requests);
-        }
-    }
     check main();
 
 }
