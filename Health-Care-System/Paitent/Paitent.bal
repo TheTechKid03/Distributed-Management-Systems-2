@@ -81,6 +81,5 @@ function View_my_requests(kafka:Consumer consumer) returns error? {
         io:println(requests);
     };
     check main();
-
 }
 
