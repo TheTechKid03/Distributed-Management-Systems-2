@@ -30,6 +30,7 @@ type Departments record {
     string Department_objective;
 };
 
+
 // Connecting the Mongo Database to our server
 mongodb:ConnectionConfig mongoConfig = {
     connection: {
@@ -63,6 +64,15 @@ configurable string databaseName = "PerformanceManagement";
 
 service /Performance_Management on new graphql:Listener(2120) {
 
+
+
+ //Resource function to get all lecturers
+ resource function get getAllLecturers() returns Employee[] {
+        return Employee[];
+    }
+
+
+
     // This section is only for add functions
     // Adding an Employee
     remote function Add_an_Employee(Employee newemployee) returns error|string {
@@ -80,24 +90,61 @@ service /Performance_Management on new graphql:Listener(2120) {
         return string `${newdepartment.Department_name} added successfully`;
     };
 
-    // Adding a Department
+
+    // Adding a KPI
     remote function Add_a_KPI(Key_Performance_Indicators newkpi) returns error|string {
         io:println("Add a Key Permance Indicator function triggered");
         map<json> doc = <map<json>>newkpi.toJson();
         _ = check db->insert(doc, KPIs_collection, "");
-        return string `${newkpi.KPI} added successfully`;
+        return string `${newkpi.KPI_id} added successfully`;
     };
 
     // This section is only for Delete functions
     // Deleting a Department Objective
    remote function Delete_a_department_objective(Departments deleteobjective) returns error|string {
-        map<json> newobjectiveDoc = <map<json>>{"$set": {"Department objective": deleteobjective.Department_objective}};
-        int updatedCount = check db->update(newobjectiveDoc, Departments_collection, databaseName, {Department_objective: deleteobjective.Department_objective}, true, false);
+        map<json> deleteobjectiveDoc = <map<json>>{"$set": {"Department objective": deleteobjective.Department_objective}};
+        int updatedCount = check db->update(deleteobjectiveDoc, Departments_collection, databaseName, {Department_objective: deleteobjective.Department_objective}, true, false);
         io:println("Updated Count ", updatedCount);
         if updatedCount > 0 {
-            return string `${deleteobjective.Department_objective} objective deleted successfully`;
+            return string `${deleteobjective.Department_name} objective deleted successfully`;
         }
         return "Failed to delete";
     }
+
+
+    // Deleting an Employees KPI
+     remote function Delete_an_employee_KPI(string id) returns error|string {
+        mongodb:Error|int deleteKPI = db->delete(KPIs_collection, "", {id: id}, false);
+        if deleteKPI is mongodb:Error {
+            return error("Failed to delete KPI");
+        } else {
+            if deleteKPI > 0 {
+                return string `${id} deleted successfully`;
+            } else {
+                return string `KPI not found`;
+            }
+        }
+
+    }
+
+
+
+    // This section is only for Update functions
+    // Updating a Department objective
+    remote function Update_a_Department_objective(Departments newobjective) returns error|string {
+        io:println("Update a Department objective function triggered");
+        map<json> doc = <map<json>>newobjective.toJson();
+        _ = check db->update(doc, Departments_collection, "");
+        return string `${newobjective.Department_name} updated successfully`;
+    };
+
+
+     // Updating an Employees KPI
+    remote function Update_an_Employees_KPI(Key_Performance_Indicators updatekpi) returns error|string {
+        io:println("Update an Employees KPI function triggered");
+        map<json> doc = <map<json>>updatekpi.toJson();
+        _ = check db->update(doc, KPIs_collection, "");
+        return string `${updatekpi.KPI_id} updated successfully`;
+    };
 
 }
