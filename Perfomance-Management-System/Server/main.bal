@@ -45,14 +45,14 @@ mongodb:ConnectionConfig mongoConfig = {
             serverSelectionTimeout: 5000
         }
     },
-    databaseName: "Performance Management System"
+    databaseName: "Performance_Management_System"
 };
 
 mongodb:Client db = check new (mongoConfig);
 configurable string Employees_collection = "Employees";
 configurable string KPIs_collection = "Key Performance Indicators";
 configurable string Departments_collection = "Departments";
-configurable string databaseName = "PerformanceManagement";
+configurable string databaseName = "Performance_Management_System";
 
 @graphql:ServiceConfig {
     graphiql: {
@@ -62,13 +62,13 @@ configurable string databaseName = "PerformanceManagement";
     }
 }
 
-service /Performance_Management on new graphql:Listener(2120) {
+service /Performance_Management on new graphql:Listener(80) {
 
 
 
  //Resource function to get all lecturers
- resource function get getAllLecturers() returns Employee[] {
-        return Employee[];
+ resource function get getAllLecturers() returns string {
+        return "hi";
     }
 
 
@@ -78,7 +78,7 @@ service /Performance_Management on new graphql:Listener(2120) {
     remote function Add_an_Employee(Employee newemployee) returns error|string {
         io:println("Add an Employee function triggered");
         map<json> doc = <map<json>>newemployee.toJson();
-        _ = check db->insert(doc, Employees_collection, "");
+        _ = check db->insert(doc, Employees_collection, databaseName);
         return string `${newemployee.First_name + " " + newemployee.Last_name} added successfully`;
     };
 
@@ -86,7 +86,7 @@ service /Performance_Management on new graphql:Listener(2120) {
     remote function Add_a_Department(Departments newdepartment) returns error|string {
         io:println("Add a Department function triggered");
         map<json> doc = <map<json>>newdepartment.toJson();
-        _ = check db->insert(doc, Departments_collection, "");
+        _ = check db->insert(doc, Departments_collection,databaseName);
         return string `${newdepartment.Department_name} added successfully`;
     };
 
@@ -95,7 +95,7 @@ service /Performance_Management on new graphql:Listener(2120) {
     remote function Add_a_KPI(Key_Performance_Indicators newkpi) returns error|string {
         io:println("Add a Key Permance Indicator function triggered");
         map<json> doc = <map<json>>newkpi.toJson();
-        _ = check db->insert(doc, KPIs_collection, "");
+        _ = check db->insert(doc, KPIs_collection,databaseName);
         return string `${newkpi.KPI_id} added successfully`;
     };
 
@@ -114,7 +114,7 @@ service /Performance_Management on new graphql:Listener(2120) {
 
     // Deleting an Employees KPI
      remote function Delete_an_employee_KPI(string id) returns error|string {
-        mongodb:Error|int deleteKPI = db->delete(KPIs_collection, "", {id: id}, false);
+        mongodb:Error|int deleteKPI = db->delete(KPIs_collection, databaseName, {id: id}, false);
         if deleteKPI is mongodb:Error {
             return error("Failed to delete KPI");
         } else {
@@ -134,7 +134,7 @@ service /Performance_Management on new graphql:Listener(2120) {
     remote function Update_a_Department_objective(Departments newobjective) returns error|string {
         io:println("Update a Department objective function triggered");
         map<json> doc = <map<json>>newobjective.toJson();
-        _ = check db->update(doc, Departments_collection, "");
+        _ = check db->update(doc, Departments_collection, databaseName);
         return string `${newobjective.Department_name} updated successfully`;
     };
 
@@ -143,7 +143,7 @@ service /Performance_Management on new graphql:Listener(2120) {
     remote function Update_an_Employees_KPI(Key_Performance_Indicators updatekpi) returns error|string {
         io:println("Update an Employees KPI function triggered");
         map<json> doc = <map<json>>updatekpi.toJson();
-        _ = check db->update(doc, KPIs_collection, "");
+        _ = check db->update(doc, KPIs_collection, databaseName);
         return string `${updatekpi.KPI_id} updated successfully`;
     };
 
