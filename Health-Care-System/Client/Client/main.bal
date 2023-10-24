@@ -1,27 +1,34 @@
 import ballerinax/kafka;
+import ballerina/io;
 
-// Define Kafka producer configuration
-kafka:ProducerConfiguration producerConfig = {
+
+kafka:ProducerConfiguration producerConfiguration = {
+    clientId: "basic-producer",
     acks: "all",
-    bootstrapServers: "localhost:9092", // Replace with your Kafka broker address
-    clientId: "health-admin-client",
-    keySerializer: "org.apache.kafka.common.serialization.StringSerializer",
-    valueSerializer: "org.apache.kafka.common.serialization.StringSerializer"
+    retryCount: 3
 };
 
-kafka:Producer kafkaProducer = check new (kafka:DEFAULT_URL, producerConfig);
+kafka:Producer kafkaProducer = check new (kafka:DEFAULT_URL, producerConfiguration);
 
-function main(string... args) {
-    // Send a request to the Health Admin Service
-    string requestMessage = "Your request message here";
-    var result = kafkaProducer->send("Patient-Requests", requestMessage);
+public function main(string... args) {
+    // Prepare a patient request
+    map<json> patientRequest = {
+        "Patient_first_name": "John",
+        "Patient_last_name": "Doe",
+        "Patient_phone_number": "1234567890",
+        "Patient_age": 35,
+        "Specialist_visiting": "Dermatology",
+        "Availability": "Monday"
+    };
 
-    match result {
-        kafka:RecordMetadata recordMetadata => {
-            io:println("Request sent successfully. Offset: " + recordMetadata.offset);
-        }
-        error e => {
-            io:println("Error sending request: " + e.toString());
-        }
+
+    // Send the patient request to Kafka
+    var result = kafkaProducer->send({ topic: "test-kafka-topic",
+                            value: patientRequest });
+    
+    if (result is error) {
+        io:println("Error sending patient request: " + result.toString());
+    } else {
+        io:println("Patient request sent successfully!");
     }
 }
