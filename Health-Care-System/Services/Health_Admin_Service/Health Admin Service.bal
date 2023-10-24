@@ -1,5 +1,5 @@
 import ballerina/http;
-//import ballerina/log;
+import ballerina/log;
 import ballerina/io;
 import ballerinax/kafka;
 import ballerinax/mongodb;
@@ -102,13 +102,19 @@ service /Health_Admin_Service on new http:Listener(8080) {
 
 resource function post addAppointment(AppointmentDetails[] appointments) returns string|error? {
        
-      foreach var Appointment in appointments {
-            if (Appointment.Specialist_visiting === "Gastroenterology") {
-                io:println(string `Received valid request for ${Appointment.Patient_full_name}`);
-                map<json> doc = <map<json>>Appointment.toJson();
-                check MongoDB->insert(doc, Gastroenterology_collection);
+    foreach var Appointment in appointments {
+            // Log the received request
+            log:printInfo("Received valid request for " + Appointment.Patient_full_name);
+
+            // Insert the appointment into MongoDB
+            map<json> doc = <map<json>>Appointment.toJson();
+            var insertResult = MongoDB->insert(doc, Gastroenterology_collection);
+            if (insertResult is error) {
+                // Log and return the error
+                log:printError("Failed to insert appointment into MongoDB: " + insertResult.toString());
+                return insertResult;
             }
-        }
-        return "Appointment(s) added successfully.";
     }
+    return "Appointment(s) added successfully.";
+}
 }
