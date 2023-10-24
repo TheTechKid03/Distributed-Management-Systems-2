@@ -1,9 +1,8 @@
+import ballerina/http;
 //import ballerina/log;
 import ballerina/io;
 import ballerinax/kafka;
 import ballerinax/mongodb;
-import ballerina/http;
-
 
 type HealthAdminRequest record {
     string Patient_first_name;
@@ -14,12 +13,10 @@ type HealthAdminRequest record {
     string Availability;
 };
 
-
 type HealthAdminResponse record {
     string Request_id;
     string Response_message;
 };
-
 
 type AppointmentDetails record {
     string Request_id;
@@ -28,7 +25,6 @@ type AppointmentDetails record {
     string Patient_full_name;
     string Patient_phone_number;
 };
-
 
 mongodb:ConnectionConfig mongoConfig = {
     connection: {
@@ -46,14 +42,11 @@ mongodb:ConnectionConfig mongoConfig = {
     databaseName: "EvoHealth"
 };
 
-
 mongodb:Client MongoDB = check new (mongoConfig);
 string Dermatology_collection = "Dermatology Requests";
 string Gastroenterology_collection = "Gastroenterology Requests";
 string Gynaecology_collection = "Gynaecology Requests";
 string Appointments_collection = "Appointments";
-
-
 
 // Define Kafka producer configuration
 kafka:ProducerConfiguration kafkaProducerConfig = {
@@ -62,10 +55,7 @@ kafka:ProducerConfiguration kafkaProducerConfig = {
     retryCount: 3
 };
 
-
 kafka:Producer kafkaProducer = check new (kafka:DEFAULT_URL, kafkaProducerConfig);
-
-
 
 listener kafka:Listener Admin_service = new (kafka:DEFAULT_URL, {
     groupId: "Patient-data-consumer",
@@ -76,11 +66,9 @@ listener kafka:Listener Admin_service = new (kafka:DEFAULT_URL, {
     ]
 });
 
-
 service on Admin_service {
     remote function onConsumerRecord(HealthAdminRequest[] requests) returns error? {
-       
-       
+
         // The set of requests received by the service are processed one by one.
         from HealthAdminRequest Appointment in requests
         where Appointment.Specialist_visiting === "Dermatology"
@@ -90,7 +78,6 @@ service on Admin_service {
             check MongoDB->insert(doc, Dermatology_collection);
         };
 
-
         from HealthAdminRequest Appointment in requests
         where Appointment.Specialist_visiting === "Gastroenterology"
         do {
@@ -98,7 +85,6 @@ service on Admin_service {
             map<json> doc = <map<json>>Appointment.toJson();
             check MongoDB->insert(doc, Gastroenterology_collection);
         };
-
 
         from HealthAdminRequest Appointment in requests
         where Appointment.Specialist_visiting === "Gynaecology"
@@ -111,25 +97,18 @@ service on Admin_service {
 }
 
 
+
 service /Health_Admin_Service on new http:Listener(8080) {
 
-
- resource function POST requestAppointment(AppointmentDetails[] appointments) returns error? {
-        // Process the patient appointment request and insert it into the database
-        
-        from AppointmentDetails Appointment in appointments
-        where Appointment.Specialist_visiting === "Dermatology"
-        do {
-          var response = io:println(string `Received valid request for ${Appointment.Patient_full_name}`);{
-
-          }
-            map<json> doc = <map<json>>Appointment.toJson();
-            check MongoDB->insert(doc, Appointments_collection);
-            return response;
-        };
- }
-
-
-
-
-};
+resource function post addAppointment(AppointmentDetails[] appointments) returns string|error? {
+       
+      foreach var Appointment in appointments {
+            if (Appointment.Specialist_visiting === "Gastroenterology") {
+                io:println(string `Received valid request for ${Appointment.Patient_full_name}`);
+                map<json> doc = <map<json>>Appointment.toJson();
+                check MongoDB->insert(doc, Gastroenterology_collection);
+            }
+        }
+        return "Appointment(s) added successfully.";
+    }
+}
