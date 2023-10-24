@@ -1,16 +1,19 @@
 import ballerina/graphql;
 import ballerina/io;
 
-public function main() returns error? {
-    graphql:Client graphqlClient = check new ("localhost:2120/graphql");
-    
-    var addDepartmentResponse = graphqlClient->execute(string `
-    mutation{
-        addProduct(newproduct:{id:"785362",name:"Soap",price:56,quantity:20})
-    }
-    `, {}, "", {}, []);
+type deptResponse record{
+	record {Department department;} data;
+};
 
-    
-    io:println(addDepartmentResponse);
-    
+public type Department record{
+	string d_name;
+	string d_head;
+};
+
+public function main() returns error?{
+	graphql:Client client_side =check new ("localhost:9090/graphql");
+	string document = "{department {d_name, d_head}}";
+	
+	deptResponse response = check client_side->execute(document);
+	io:println(response.data.department);
 }
