@@ -108,7 +108,7 @@ resource function post addAppointment(AppointmentDetails[] appointments) returns
 
             // Insert the appointment into MongoDB
             map<json> doc = <map<json>>Appointment.toJson();
-            var insertResult = MongoDB->insert(doc, Gastroenterology_collection);
+            var insertResult = MongoDB->insert(doc, Appointments_collection);
             if (insertResult is error) {
                 // Log and return the error
                 log:printError("Failed to insert appointment into MongoDB: " + insertResult.toString());

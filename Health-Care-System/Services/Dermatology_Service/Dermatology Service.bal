@@ -1,19 +1,14 @@
-//import ballerina/log;
-//import ballerina/io;
 import ballerinax/kafka;
 import ballerinax/mongodb;
+import ballerina/log;
 
-
-type Request_info record {
+type AppointmentDetails record {
     string Request_id;
-    string Patient_name;
-    string Patient_last_name;
-    int Patient_phone_number;
-    int Patient_age;
     string Specialist_visiting;
-    boolean isValid;
+    string Appointment_date;
+    string Patient_full_name;
+    string Patient_phone_number;
 };
-
 
 mongodb:ConnectionConfig mongoConfig = {
     connection: {
@@ -31,14 +26,27 @@ mongodb:ConnectionConfig mongoConfig = {
     databaseName: "EvoHealth"
 };
 
-
 mongodb:Client MongoDB = check new (mongoConfig);
-string Patient_collection = "Patient Requests";
-listener kafka:Listener Admin_service = new (kafka:DEFAULT_URL, {
-    groupId: "Patient-data-consumer",
+string Dermatology_collection = "Dermatology Appointments";
+
+listener kafka:Listener Dermatology_service = new (kafka:DEFAULT_URL, {
+    groupId: "Dermatology-Appointment-consumer",
     topics: [
-        "Patient-Requests",
-        "Appointment-Details",
-        "Specialist-Response"
+        "Appointment-Details"
     ]
 });
+
+service on Dermatology_service {
+    remote function onConsumerRecord(AppointmentDetails[] appointments) returns error? {
+        // Process the patient appointment requests for Dermatology
+
+        foreach var Appointment in appointments {
+            // Log the received request
+            log:printInfo("Received Dermatology appointment request for " + Appointment.Patient_full_name);
+
+            // Insert the appointment into the Dermatology MongoDB collection
+            map<json> doc = <map<json>>Appointment.toJson();
+            check MongoDB->insert(doc, Dermatology_collection);
+        }
+    };
+}
