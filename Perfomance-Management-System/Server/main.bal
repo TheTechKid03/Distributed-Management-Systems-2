@@ -62,11 +62,11 @@ configurable string databaseName = "Performance_Management_System";
     }
 }
 
-service /Performance_Management on new graphql:Listener(80) {
+service /Performance_Management on new graphql:Listener(8080) {
 
 
 
- //Resource function to get all lecturers
+ // Ignore this code I didnt have a choice
  resource function get getAllLecturers() returns string {
         return "hi";
     }

@@ -3,6 +3,19 @@ import ballerina/io;
 import ballerinax/kafka;
 import ballerinax/mongodb;
 
+
+type Request_info record {
+    string Request_id;
+    string Patient_name;
+    string Patient_last_name;
+    int Patient_phone_number;
+    int Patient_age;
+    string Specialist_visiting;
+    boolean isValid;
+};
+
+
+
 mongodb:ConnectionConfig mongoConfig = {
     connection: {
         host: "localhost",
@@ -20,20 +33,12 @@ mongodb:ConnectionConfig mongoConfig = {
 };
 
 mongodb:Client mongoClient = check new (mongoConfig);
-string Patient_request_published = "Patient Requests";
+string Patient_collection = "Patient Requests";
 
-type Request_info record {
-    string Request_id;
-    string Patient_name;
-    string Patient_last_name;
-    int Patient_phone_number;
-    int Patient_age;
-    string Specialist_visiting;
-    boolean isValid;
-};
+
 
 listener kafka:Listener Admin_service = new (kafka:DEFAULT_URL, {
-    groupId: "Patient data consumer",
+    groupId: "Patient-data-consumer",
     topics: [
         "Patient-Requests",
         "Appointment-Details",
@@ -49,7 +54,8 @@ service on Admin_service {
         do {
             io:println(string `Received valid request for ${Appointment.Patient_name + " " + Appointment.Patient_last_name}`);
             map<json> Request_1 = <map<json>>Appointment.toJson();
-            check mongoClient->insert(Request_1, Patient_request_published);
+            check mongoClient->insert(Request_1, Patient_collection
+        );
         };
 
 
@@ -58,7 +64,8 @@ service on Admin_service {
         do {
             io:println(string `Received valid request for ${Appointment.Patient_name + " " + Appointment.Patient_last_name}`);
             map<json> Request_2 = <map<json>>Appointment.toJson();
-            check mongoClient->insert(Request_2, Patient_request_published);
+            check mongoClient->insert(Request_2, Patient_collection
+        );
         };
 
 
@@ -67,7 +74,8 @@ service on Admin_service {
         do {
             io:println(string `Received valid request for ${Appointment.Patient_name + " " + Appointment.Patient_last_name}`);
             map<json> Request_3 = <map<json>>Appointment.toJson();
-            check mongoClient->insert(Request_3, Patient_request_published);
+            check mongoClient->insert(Request_3, Patient_collection
+        );
         };
 
     };
