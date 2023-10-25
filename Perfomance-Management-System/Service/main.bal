@@ -6,7 +6,7 @@ import ballerinax/mongodb;
 
 // This Will be the HOD responsibility
 type Users record {
-    int Employee_id;
+    string Employee_id;
     string First_name;
     string Last_name;
     string Job_title;
@@ -14,16 +14,16 @@ type Users record {
     string Role;
     string Department;
     string Supervisor;
-    int Employee_score;
+    string Employee_score;
 };
 
 type Key_Performance_Indicators record {
     string KPI_id;
     string KPI;
-    int Employee_id;
+    string Employee_id;
     string First_name;
     string Last_name;
-    float Grade;
+    string Grade;
     string Approved_or_Denied;
 };
 
