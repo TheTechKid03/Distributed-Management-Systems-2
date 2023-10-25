@@ -1,9 +1,10 @@
+// Importing necessary dependencies
 import ballerina/graphql;
 import ballerina/io;
 import ballerinax/mongodb;
 
 // This Will be the HOD responsibility
-type Employee record {
+type Users record {
     int Employee_id;
     string First_name;
     string Last_name;
@@ -37,8 +38,8 @@ mongodb:ConnectionConfig mongoConfig = {
         host: "localhost",
         port: 27017,
         auth: {
-            username: "",
-            password: ""
+            username: "PMS",
+            password: "Techislife5"
         },
         options: {
             sslEnabled: false,
@@ -48,21 +49,24 @@ mongodb:ConnectionConfig mongoConfig = {
     databaseName: "Performance_Management_System"
 };
 
+
+// Setting up the database collections
 mongodb:Client db = check new (mongoConfig);
-configurable string Employees_collection = "Employees";
+configurable string Users_collection = "Users";
 configurable string KPIs_collection = "Key Performance Indicators";
 configurable string Departments_collection = "Departments";
 configurable string databaseName = "Performance_Management_System";
 
+
 @graphql:ServiceConfig {
     graphiql: {
-        enabled: true,
+        enabled: true
         // Path is optional, if not provided, it will be dafulted to `/graphiql`.
-        path: "/Performance"
+        // path: "/Performance"
     }
 }
 
-service /Performance_Management on new graphql:Listener(8080) {
+service /Performance_Management on new graphql:Listener(2120) {
 
 
 
@@ -74,11 +78,11 @@ service /Performance_Management on new graphql:Listener(8080) {
 
 
     // This section is only for add functions
-    // Adding an Employee
-    remote function Add_an_Employee(Employee newemployee) returns error|string {
-        io:println("Add an Employee function triggered");
+    // Adding an Users
+    remote function Add_an_Employee(Users newemployee) returns error|string {
+        io:println("Add an Users function triggered");
         map<json> doc = <map<json>>newemployee.toJson();
-        _ = check db->insert(doc, Employees_collection, databaseName);
+        _ = check db->insert(doc, Users_collection, databaseName);
         return string `${newemployee.First_name + " " + newemployee.Last_name} added successfully`;
     };
 
@@ -112,7 +116,7 @@ service /Performance_Management on new graphql:Listener(8080) {
     }
 
 
-    // Deleting an Employees KPI
+    // Deleting an Users KPI
      remote function Delete_an_employee_KPI(string id) returns error|string {
         mongodb:Error|int deleteKPI = db->delete(KPIs_collection, databaseName, {id: id}, false);
         if deleteKPI is mongodb:Error {
@@ -139,9 +143,9 @@ service /Performance_Management on new graphql:Listener(8080) {
     };
 
 
-    // Updating an Employees KPI
+    // Updating an Users KPI
     remote function Update_an_Employees_KPI(Key_Performance_Indicators updatekpi) returns error|string {
-        io:println("Update an Employees KPI function triggered");
+        io:println("Update an Users KPI function triggered");
         map<json> doc = <map<json>>updatekpi.toJson();
         _ = check db->update(doc, KPIs_collection, databaseName);
         return string `${updatekpi.KPI_id} updated successfully`;
