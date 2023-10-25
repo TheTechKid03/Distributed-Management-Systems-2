@@ -72,7 +72,10 @@ service /Performance on new graphql:Listener(9090) {
 
  // Ignore this code I didnt have a choice
  resource function get getAllLecturers() returns string {
-        return "hi";
+        stream<Departments,error?> dept = check db->find(Departments_collection);
+        Departments[] dept_1= check from var deptInfo in dept select deptInfo ;
+        string response = dept_1.toString();
+        return response;
     }
 
 
