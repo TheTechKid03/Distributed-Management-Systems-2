@@ -124,8 +124,8 @@ service /Performance on new graphql:Listener(9090) {
     // This section is only for Delete functions
     // Deleting a Department Objective
    remote function Delete_a_department_objective(Departments deleteobjective) returns error|string {
-        map<json> deleteobjectiveDoc = <map<json>>{"$set": {"Department objective": deleteobjective.Department_objective}};
-        int updatedCount = check db->update(deleteobjectiveDoc, Departments_collection, databaseName, {Department_objective: deleteobjective.Department_objective}, true, false);
+        map<json> deleteobjectiveDoc = <map<json>>{"$getField": {"Department objective": deleteobjective.Department_objective}};
+       int updatedCount = check db->delete(Departments_collection, databaseName, deleteobjectiveDoc);
         io:println("Updated Count ", updatedCount);
         if updatedCount > 0 {
             return string `${deleteobjective.Department_name} objective deleted successfully`;
