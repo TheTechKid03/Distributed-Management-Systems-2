@@ -42,7 +42,7 @@ public function main() returns error? {
     io:println("|           ULTIMATE PERFORMANCE MANAGEMENT SYSTEM V7.0.2           |");
     io:println("|         -------------------------------------------------         |");
     io:println("|               By: - Michael Amutenya (TheTechKid)                 |");
-    io:println("|                       - Karel Pieters                             |");
+    io:println("|                       - Karel Ndumba                              |");
     io:println("|                           - Barkias Shapaka                       |");
     io:println("|                              - Festus Alpheus (FessyNam)          |");
     io:println("---------------------------------------------------------------------");
