@@ -1,20 +1,28 @@
 import ballerina/graphql;
-// import ballerina/io;
+import ballerina/io;
 import ballerinax/mongodb;
 
-//when using mongo db you dont need to pass the ID, coz mongo db generates one for u
-type DepartmentObjectives record {
-    string departmentName;
-    string objectiveName;
-    string objectiveDescription;
-    string ObjectiveId;
-
-};
-
+//Records for Authentication
 type User record {
     string username;
     string password;
 };
+
+type UserDetails record {
+    string username;
+    string? password;
+    boolean isAdmin;
+};
+
+type UpdatedUserDetails record {
+    string username;
+    string password;
+};
+
+type LoggedUserDetails record {|
+    string username;
+    boolean isAdmin;
+|};
 
 // Definning the connection configurations to mongo db
 
@@ -31,39 +39,76 @@ mongodb:ConnectionConfig mongoConfig = {
             serverSelectionTimeout: 5000
         }
     },
-    databaseName: "FCIManagementSystem"
+    databaseName: "FCI-ManagementSystem"
 
 };
 mongodb:Client db = check new (mongoConfig);
 
 //collections below
-configurable string ObjectivesCollection = "DepartmentObjectives";
-configurable string UsersCollection = "Users";
+//configurable string ObjectivesCollection = "DepartmentObjectives";
+configurable string userCollection = "Users";
+configurable string databaseName = "FCI-ManagementSystem";
 
-service /FCIManagemetSystem on new graphql:Listener(9090) {
-    //CREATE DepartmentObjeective
-    remote function CreateObjectives(DepartmentObjectives newDepartmentObjectives) returns (string|error) {
-        //recieve the Department Objective record from client,convert the record to MapJson and store it in a database 
-
-        map<json> myDoc = <map<json>>newDepartmentObjectives.toJson();
-        _ = check db->insert(myDoc, ObjectivesCollection, "");
-        return string `$(newObjective.name) added successfully`;
-    }
-
-    //DELETE DepartmentObjeective
-    remote function DeleteObjectives(string id) returns (string|error) {
-
-        mongodb:Error|int deletedItem = check db->delete(ObjectivesCollection, "", {id: id}, false);
-
-        if deletedItem is mongodb:Error {
-            return error("Failed to delete item");
-        } else {
-            if deletedItem > 0 {
-                return string `${id} deleted successfully`;
-            } else {
-                return string `${id} No deleted items`;
-            }
-
-        }
+@graphql:ServiceConfig {
+    graphiql: {
+        enabled: true,
+        // Path is optional, if not provided, it will be dafulted to `/graphiql`.
+        path: "/testing"
     }
 }
+
+//Creating the service
+service /FCIManagemetSystem on new graphql:Listener(2120) {
+
+    //for [query] you use (resourse function)
+    //for Mutations, you use (remote functions)
+
+
+    //Get username and password from client, and check mondo db, if details are valid or not
+    //Query operations below:
+    resource function get login(User user) returns LoggedUserDetails|error {
+        stream<UserDetails, error?> usersDeatils = check db->find(userCollection, databaseName, {username: user.username, password: user.password}, {});
+
+        UserDetails[] users = check from var userInfo in usersDeatils
+            select userInfo;
+        io:println("Users ", users);
+        // If the user is found return a user or return a string user not found
+        if users.length() > 0 {
+            return {username: users[0].username, isAdmin: users[0].isAdmin};
+        }
+        return {
+            username: "",
+            isAdmin: false
+        };
+    }
+
+//Mutation operation below:
+
+
+//Regitering new username and Password
+remote function register(User newuser) returns error|string {
+
+        map<json> doc = <map<json>>{isAdmin: false, username: newuser.username, password: newuser.password};
+        _ = check db->insert(doc, userCollection, "");
+        return string `${newuser.username} added successfully`;
+    }
+
+    // Function change the user password by updating the user using mongoDB update function $set
+    // Mongo db update function comes with different functions that you can use to modify your data
+    // + $push and $pull for arrays inside your document
+    // + $set for replace a value for example password.
+    //Funnction for Changing password, NOT asked in the Assignment but just added it anyways :)
+    remote function changePassword(UpdatedUserDetails updatedUser) returns error|string {
+
+        map<json> newPasswordDoc = <map<json>>{"$set": {"password": updatedUser.password}};
+
+        int updatedCount = check db->update(newPasswordDoc, userCollection, databaseName, {username: updatedUser.username}, true, false);
+        io:println("Updated Count ", updatedCount);
+
+        if updatedCount > 0 {
+            return string `${updatedUser.username} password changed successfully`;
+        }
+        return "Failed to updated";
+    }
+}
+
