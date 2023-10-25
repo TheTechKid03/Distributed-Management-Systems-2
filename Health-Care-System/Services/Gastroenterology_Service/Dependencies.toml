@@ -143,7 +143,7 @@ modules = [
 
 [[package]]
 org = "tech4"
-name = "Health_Care_System"
+name = "Gastroenterology_Service"
 version = "0.1.0"
 dependencies = [
 	{org = "ballerina", name = "log"},
@@ -152,6 +152,6 @@ dependencies = [
 	{org = "ballerinax", name = "mongodb"}
 ]
 modules = [
-	{org = "tech4", packageName = "Health_Care_System", moduleName = "Health_Care_System"}
+	{org = "tech4", packageName = "Gastroenterology_Service", moduleName = "Gastroenterology_Service"}
 ]
 
