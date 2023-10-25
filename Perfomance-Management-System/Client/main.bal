@@ -56,9 +56,46 @@ public function HOD_menu() returns error? {
     io:println("|3.  Update an existing departments objective                       |");
     io:println("|4.  View employees total scores                                    |");
     io:println("|5.  Assign an employee a supervisor                                |");
-    io:println("|6.  Back to main menu                                              |");
+    io:println("|6.  Logout of user                                                 |");
     io:println("---------------------------------------------------------------------");
     string option = io:readln("Choose an option: ");
+
+match option {
+        "1" => {
+          
+        }
+
+
+        "2" => {
+          
+        }
+
+
+        "3" => {
+          
+        }
+
+
+        "4" => {
+          
+        }
+
+
+        "5" => {
+          
+        }
+
+
+        "6" => {
+           check Login_menu();
+        }
+
+
+        _ => {
+            io:println("Invalid Option");
+            check HOD_menu();
+        }
+ }
 
 }
 
@@ -75,9 +112,46 @@ public function Supervisor_menu() returns error? {
     io:println("|3.  Update Employee's KPIs                                         |");
     io:println("|4.  View Employee Scores [Supervisor filter]                       |");
     io:println("|5.  Grade the employee’s KPIs                                      |");
-    io:println("|6.  Back to main menu                                              |");
+    io:println("|6.  Logout of user                                                 |");
     io:println("---------------------------------------------------------------------");
     string option = io:readln("Choose an option: ");
+
+match option {
+         "1" => {
+          
+        }
+
+
+        "2" => {
+          
+        }
+
+
+        "3" => {
+          
+        }
+
+
+        "4" => {
+          
+        }
+
+
+        "5" => {
+          
+        }
+
+
+        "6" => {
+           check Login_menu();
+        }
+
+
+        _ => {
+            io:println("Invalid Option");
+            check Supervisor_menu();
+        }
+ }
 
 }
 
@@ -94,10 +168,35 @@ public function Employee_menu() returns error? {
     io:println("|1.  Create their KPIs                                              |");
     io:println("|2.  Grade their Supervisor                                         |");
     io:println("|3.  View Their Scores                                              |");
-    io:println("|4.  View Employee Scores [Supervisor filter]                       |");
-    io:println("|5.  Grade the employee’s KPIs                                      |");
-    io:println("|6.  Back to main menu                                              |");
+    io:println("|4.  Logout of user                                                 |");
     io:println("---------------------------------------------------------------------");
     string option = io:readln("Choose an option: ");
+
+match option {
+        "1" => {
+         
+        }
+
+
+        "2" => {
+        
+        }
+
+
+        "3" => {
+           
+        }
+
+
+        "4" => {
+            check Login_menu();
+        }
+
+
+        _ => {
+            io:println("Invalid Option");
+            check Employee_menu();
+        }
+ }
 
 }
