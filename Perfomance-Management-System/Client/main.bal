@@ -2,17 +2,49 @@ import ballerina/io;
 import ballerina/graphql;
 
 
+// This Will be the HOD responsibility
+type Users record {
+    string Employee_id;
+    string First_name;
+    string Last_name;
+    string Job_title;
+    string Position;
+    string Role;
+    string Department;
+    string Supervisor;
+    string Employee_score;
+};
 
-public function Login_menu() returns error? {
+type Key_Performance_Indicators record {
+    string KPI_id;
+    string KPI;
+    string Employee_id;
+    string First_name;
+    string Last_name;
+    string Grade;
+    string Approved_or_Denied;
+};
+
+type Departments record {
+    string Department_name?;
+    string Department_objective?;
+};
+
+
+
+
+
+
+public function main() returns error? {
     graphql:Client Client = check new ("localhost:9090/Performance");
     io:println("---------------------------------------------------------------------");
     io:println("|                                                                   |");
     io:println("|           ULTIMATE PERFORMANCE MANAGEMENT SYSTEM V7.0.2           |");
     io:println("|         -------------------------------------------------         |");
-    io:println("|                              By: - Michael Amutenya (TheTechKid)  |");
-    io:println("|                                  - Karel Pieters                  |");
-    io:println("|                                  - Barkias Shapaka                |");
-    io:println("|                                  - Festus Alpheus                 |");
+    io:println("|               By: - Michael Amutenya (TheTechKid)                 |");
+    io:println("|                       - Karel Pieters                             |");
+    io:println("|                           - Barkias Shapaka                       |");
+    io:println("|                              - Festus Alpheus (FessyNam)          |");
     io:println("---------------------------------------------------------------------");
     io:println("|1.  Login as a Head Of Deparment                                   |");
     io:println("|2.  Login as a Supervisor                                          |");
@@ -38,7 +70,7 @@ public function Login_menu() returns error? {
 
         _ => {
             io:println("Invalid Option");
-            check Login_menu();
+            check main();
         }
  }
 }
@@ -51,19 +83,35 @@ public function HOD_menu() returns error? {
     io:println("|                       HEAD OF DEPARTMENT MENU                     |");
     io:println("|                                                                   |");
     io:println("---------------------------------------------------------------------");
-    io:println("|1.  Add a new department/objective                                 |");
-    io:println("|2.  Delete a department/objective                                  |");
-    io:println("|3.  Update an existing departments objective                       |");
-    io:println("|4.  View employees total scores                                    |");
-    io:println("|5.  Assign an employee a supervisor                                |");
-    io:println("|6.  Logout of user                                                 |");
+    io:println("|1.  Add a new User                                                 |");
+    io:println("|2.  Add a new department/objective                                 |");
+    io:println("|3.  Delete a department/objective                                  |");
+    io:println("|4.  Update an existing departments objective                       |");
+    io:println("|5.  View employees total scores                                    |");
+    io:println("|6.  Assign an employee a supervisor                                |");
+    io:println("|7.  Logout of user                                                 |");
     io:println("---------------------------------------------------------------------");
     string option = io:readln("Choose an option: ");
 
 match option {
         "1" => {
-          
-        }
+          Departments Department = {};
+            Department.Department_name = io:readln("Enter The Department Name: ");
+            Department.Department_objective = io:readln("Enter The Departments Objective: ");
+
+            string document = string `
+                        mutation{
+                          Add_a_Department($Department_name: String, $Department_objective: String){
+                                Add_a_Department(newdepartment: 
+                                {Department_name: $Department_name, Department_objective: $Department_objective})
+                            }
+                    }
+            `;
+
+        var Add_a_department_response = check Client -> execute (document, {Department_name, Department_objective}, "AddDepartment", {}, []);
+        io:println(Add_a_department_response);
+
+        } 
 
 
         "2" => {
@@ -87,7 +135,12 @@ match option {
 
 
         "6" => {
-           check Login_menu();
+          
+        }
+
+
+        "7" => {
+           check main();
         }
 
 
@@ -143,7 +196,7 @@ match option {
 
 
         "6" => {
-           check Login_menu();
+           check main();
         }
 
 
@@ -189,7 +242,7 @@ match option {
 
 
         "4" => {
-            check Login_menu();
+            check main();
         }
 
 

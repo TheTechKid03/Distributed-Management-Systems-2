@@ -1,8 +1,8 @@
 [package]
-org = "zeze"
-name = "Client"
+org = "tech4"
+name = "Client1"
 version = "0.1.0"
-distribution = "2201.8.2"
+distribution = "2201.7.2"
 
 [build-options]
 observabilityIncluded = true
