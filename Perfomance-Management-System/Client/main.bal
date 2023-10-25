@@ -4,7 +4,7 @@ import ballerina/graphql;
 
 
 public function Login_menu() returns error? {
-    graphql:Client Client = check new ("localhost:2120/Performance_Management_System");
+    graphql:Client Client = check new ("localhost:9090/Performance");
     io:println("---------------------------------------------------------------------");
     io:println("|                                                                   |");
     io:println("|           ULTIMATE PERFORMANCE MANAGEMENT SYSTEM V7.0.2           |");
@@ -45,7 +45,7 @@ public function Login_menu() returns error? {
 
 
 public function HOD_menu() returns error? {
-    graphql:Client Client = check new ("localhost:2120/Performance_Management_System");
+    graphql:Client Client = check new ("localhost:9090/Performance");
     io:println("---------------------------------------------------------------------");
     io:println("|                                                                   |");
     io:println("|                       HEAD OF DEPARTMENT MENU                     |");
@@ -101,7 +101,7 @@ match option {
 
 
 public function Supervisor_menu() returns error? {
-    graphql:Client Client = check new ("localhost:2120/Performance_Management_System");
+    graphql:Client Client = check new ("localhost:9090/Performance");
     io:println("---------------------------------------------------------------------");
     io:println("|                                                                   |");
     io:println("|                           SUPERVISOR MENU                         |");
@@ -159,7 +159,7 @@ match option {
 
 
 public function Employee_menu() returns error? {
-    graphql:Client Client = check new ("localhost:2120/Performance_Management_System");
+    graphql:Client Client = check new ("localhost:9090/Performance");
     io:println("---------------------------------------------------------------------");
     io:println("|                                                                   |");
     io:println("|                           EMPLOYEE MENU                           |");

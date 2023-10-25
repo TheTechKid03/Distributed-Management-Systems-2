@@ -38,8 +38,8 @@ mongodb:ConnectionConfig mongoConfig = {
         host: "localhost",
         port: 27017,
         auth: {
-            username: "PMS",
-            password: "Techislife5"
+            username: "",
+            password: ""
         },
         options: {
             sslEnabled: false,
@@ -60,13 +60,13 @@ configurable string databaseName = "Performance_Management_System";
 
 @graphql:ServiceConfig {
     graphiql: {
-        enabled: true
+        enabled: true,
         // Path is optional, if not provided, it will be dafulted to `/graphiql`.
-        // path: "/Performance"
+        path: "/Performance"
     }
 }
 
-service /Performance_Management on new graphql:Listener(2120) {
+service on new graphql:Listener(9090) {
 
 
 
@@ -79,11 +79,11 @@ service /Performance_Management on new graphql:Listener(2120) {
 
     // This section is only for add functions
     // Adding an Users
-    remote function Add_an_Employee(Users newemployee) returns error|string {
-        io:println("Add an Users function triggered");
-        map<json> doc = <map<json>>newemployee.toJson();
-        _ = check db->insert(doc, Users_collection, databaseName);
-        return string `${newemployee.First_name + " " + newemployee.Last_name} added successfully`;
+    remote function Add_a_User(Users newuser) returns error|string {
+        io:println("Add a User function triggered");
+        map<json> doc = <map<json>>newuser.toJson();
+        _ = check db->insert(doc, Users_collection, "");
+        return string `${newuser.First_name + " " + newuser.Last_name} added successfully`;
     };
 
     // Adding a Department
