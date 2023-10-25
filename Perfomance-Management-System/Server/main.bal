@@ -53,7 +53,7 @@ configurable string databaseName = "FCI-ManagementSystem";
     graphiql: {
         enabled: true,
         // Path is optional, if not provided, it will be dafulted to `/graphiql`.
-        path: "/testing"
+        path: "/graphql"
     }
 }
 
@@ -65,6 +65,7 @@ service /FCIManagemetSystem on new graphql:Listener(2120) {
 
 
     //Get username and password from client, and check mondo db, if details are valid or not
+
     //Query operations below:
     resource function get login(User user) returns LoggedUserDetails|error {
         stream<UserDetails, error?> usersDeatils = check db->find(userCollection, databaseName, {username: user.username, password: user.password}, {});
@@ -108,7 +109,7 @@ remote function register(User newuser) returns error|string {
         if updatedCount > 0 {
             return string `${updatedUser.username} password changed successfully`;
         }
-        return "Failed to updated";
+        return "Failed to Change password";
     }
 }
 

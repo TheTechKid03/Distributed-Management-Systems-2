@@ -2,15 +2,18 @@ import ballerina/graphql;
 import ballerina/io;
 
 public function main() returns error? {
-    graphql:Client graphqlClient = check new ("localhost:2120/graphql");
-    
-    var addDepartmentResponse = graphqlClient->execute(string `
-    mutation{
-        addProduct(newproduct:{id:"785362",name:"Soap",price:56,quantity:20})
-    }
-    `, {}, "", {}, []);
+    //Passing the root path ---> FCIManagemetSystem
+    graphql:Client graphqlClient = check new ("localhost:2120/FCIManagemetSystem");
 
-    
-    io:println(addDepartmentResponse);
-    
+    //Login
+    var loginResponse = graphqlClient->execute(string`
+    query{
+  get login(user: {username: "karel", password: "pass123"})
 }
+ `,{},"",{}, []);
+
+io:println (loginResponse) ;
+}
+//Will fix the error after my poer nap :)
+
+
