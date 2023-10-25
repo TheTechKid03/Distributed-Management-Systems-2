@@ -55,17 +55,38 @@ public function main() returns error? {
  match option {
         "1" => {
            check HOD_menu();
+//            var loginResponse = graphqlClient->execute(string`
+//      query{
+//    get login(user: {username: "karel", password: "pass123"})
+//  }
+//   `,{},"",{}, []);
+
+//  io:println (loginResponse) ;
         }
 
 
         "2" => {
            check Supervisor_menu();
+           //            var loginResponse = graphqlClient->execute(string`
+//      query{
+//    get login(user: {username: "karel", password: "pass123"})
+//  }
+//   `,{},"",{}, []);
+
+//  io:println (loginResponse) ;
         }
 
 
         "3" => {
            check Employee_menu();
         }
+        //            var loginResponse = graphqlClient->execute(string`
+//      query{
+//    get login(user: {username: "karel", password: "pass123"})
+//  }
+//   `,{},"",{}, []);
+
+//  io:println (loginResponse) ;
 
 
         _ => {
