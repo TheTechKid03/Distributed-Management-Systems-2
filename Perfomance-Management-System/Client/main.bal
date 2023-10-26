@@ -16,13 +16,11 @@ type Users record {
 };
 
 type Key_Performance_Indicators record {
-    string KPI_id;
-    string KPI;
-    string Employee_id;
-    string First_name;
-    string Last_name;
-    string Grade;
-    string Approved_or_Denied;
+    string KPI_id?;
+    string KPI_details?;
+    string Employee_id?;
+    string Grade?;
+    string Approved_or_Denied?;
 };
 
 type Departments record {
