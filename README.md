@@ -9,4 +9,4 @@ GROUP MEMBERS:
 
 221068937 Amutenya Michael.T
 
-![MasterHead](https://user-images.githubusercontent.com/95478989/198955082-6e78ebb5-e1e4-49f9-8d32-6e5af3984dcd.gif)
+
