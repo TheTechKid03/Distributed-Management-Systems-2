@@ -37,6 +37,9 @@ type AddDepResp record {|
     record {|anydata dt;|} data;
 |};
 
+type AddDKPIResp record {|
+    record {|anydata dt;|} data;
+|};
 
 public function main() returns error? {
     graphql:Client Client = check new ("localhost:9090/Performance");
@@ -269,7 +272,22 @@ public function Employee_menu() returns error? {
 
 match option {
         "1" => {
-         
+          Key_Performance_Indicators key = {Grade: "", Approved_or_Denied: ""};
+            key.KPI_id = io:readln("Enter KPI's ID: ");
+            key.KPI_details = io:readln("Enter KPI's Details: ");
+            key.Employee_id = io:readln("Enter Employee ID of User Who Created The KPI: ");
+            
+            // Define the GraphQL mutation document, variables, and operationName
+            string doc = string `
+            mutation Add_a_KPI($KPI_id:String!,$KPI_details:String!,$Employee_id:String!,$Grade:String!, $Approved_or_Denied:String!){
+            Add_a_KPI(newkpi:{KPI_id:$KPI_id,KPI_details:$KPI_details,Employee_id:$Employee_id,
+            Grade:$Grade,Approved_or_Denied:$Approved_or_Denied})
+             }`;
+
+            AddDKPIResp addkpiResponse = check Client -> execute(doc, {"KPI_id": key.KPI_id,
+             "KPI_details":  key.KPI_details, "Employee_id":  key.Employee_id, "Grade": "" , "Approved_or_Denied": ""});
+
+             io:println("Response ", addkpiResponse);
 
          
         }
