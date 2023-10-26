@@ -4,15 +4,15 @@ import ballerina/graphql;
 
 // This Will be the HOD responsibility
 type Users record {
-    string Employee_id;
-    string First_name;
-    string Last_name;
-    string Job_title;
-    string Position;
-    string Role;
-    string Department;
-    string Supervisor;
-    string Employee_score;
+    string Employee_id?;
+    string First_name?;
+    string Last_name?;
+    string Job_title?;
+    string Position?;
+    string Role?;
+    string Department?;
+    string Supervisor?;
+    string Employee_score?;
 };
 
 type Key_Performance_Indicators record {
@@ -31,8 +31,13 @@ type Departments record {
 };
 
 
+type AddUserResp record {|
+    record {|anydata dt;|} data;
+|};
 
-
+type AddDepResp record {|
+    record {|anydata dt;|} data;
+|};
 
 
 public function main() returns error? {
@@ -95,27 +100,45 @@ public function HOD_menu() returns error? {
 
 match option {
         "1" => {
-          Departments Department = {};
+            Users User = {Department: " ", Supervisor: " ", Employee_score: " "};
+            User.Employee_id = io:readln("Enter Users ID: ");
+            User.First_name = io:readln("Enter First Name: ");
+            User.Last_name = io:readln("Enter Last Name: ");
+            User.Job_title = io:readln("Enter Job Title: ");
+            User.Position = io:readln("Enter Position: ");
+            User.Role = io:readln("Enter Role: ");
+           
+            // Define the GraphQL mutation document, variables, and operationName
+            string doc = string `
+            mutation Add_a_User($Employee_id:String!,$First_name:String!,$Last_name:String!,$Job_title:String!,
+            $Position:String!,$Role:String!,$Department:String!,$Supervisor:String!,$Employee_score:String!){
+            Add_a_User(newuser:{Employee_id:$Employee_id,First_name:$First_name,Last_name:$Last_name
+            ,Job_title:$Job_title,Position:$Position,Role:$Role,Department:$Department
+            ,Supervisor:$Supervisor,Employee_score:$Employee_score})
+             }`;
+
+             AddUserResp adduserResponse = check Client -> execute(doc, {"Employee_id": User.Employee_id,
+             "First_name":  User.First_name, "Last_name": User.Last_name, "Job_title":  User.Job_title, "Position": User.Position,
+             "Role": User.Role, "Department": "" , "Supervisor": "", "Employee_score": ""});
+
+             io:println("Response ", adduserResponse);
+        }
+
+        "2" => {
+            Departments Department = {};
             Department.Department_name = io:readln("Enter The Department Name: ");
             Department.Department_objective = io:readln("Enter The Departments Objective: ");
 
-            string document = string `
-                        mutation{
-                          Add_a_Department($Department_name: String, $Department_objective: String){
-                                Add_a_Department(newdepartment: 
-                                {Department_name: $Department_name, Department_objective: $Department_objective})
-                            }
-                    }
-            `;
+            // Define the GraphQL mutation document, variables, and operationName
+           
+            string doc = string `
+            mutation Add_a_Department($Department_name:String!,$Department_objective:String!){
+            Add_a_Department(newdepartment:{Department_name:$Department_name,Department_objective:$Department_objective})
+             }`;
 
-        var Add_a_department_response = check Client -> execute (document, {Department_name, Department_objective}, "AddDepartment", {}, []);
-        io:println(Add_a_department_response);
+             AddDepResp addDepResponse = check Client->execute(doc, {"Department_name": Department.Department_name,"Department_objective": Department.Department_objective});
 
-        } 
-
-
-        "2" => {
-          
+                  io:println("Response ", addDepResponse);
         }
 
 
@@ -227,6 +250,8 @@ public function Employee_menu() returns error? {
 
 match option {
         "1" => {
+         
+
          
         }
 

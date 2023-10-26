@@ -63,12 +63,12 @@ configurable string databaseName = "Performance_Management_System";
     graphiql: {
         enabled: true,
         // Path is optional, if not provided, it will be dafulted to `/graphiql`.
-        path: "/Performance"
+        path: "/PMS"
     }
 }
 
 
-service on new graphql:Listener(9090) {
+service /Performance on new graphql:Listener(9090) {
 
 
 
