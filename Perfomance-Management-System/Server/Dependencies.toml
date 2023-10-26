@@ -32,6 +32,14 @@ dependencies = [
 
 [[package]]
 org = "ballerina"
+name = "cloud"
+version = "2.10.0"
+modules = [
+	{org = "ballerina", packageName = "cloud", moduleName = "cloud"}
+]
+
+[[package]]
+org = "ballerina"
 name = "constraint"
 version = "1.3.0"
 dependencies = [
@@ -339,15 +347,16 @@ modules = [
 
 [[package]]
 org = "tech4"
-name = "Service"
+name = "Performance_Management_System"
 version = "0.1.0"
 dependencies = [
+	{org = "ballerina", name = "cloud"},
 	{org = "ballerina", name = "graphql"},
 	{org = "ballerina", name = "io"},
 	{org = "ballerinai", name = "observe"},
 	{org = "ballerinax", name = "mongodb"}
 ]
 modules = [
-	{org = "tech4", packageName = "Service", moduleName = "Service"}
+	{org = "tech4", packageName = "Performance_Management_System", moduleName = "Performance_Management_System"}
 ]
 
