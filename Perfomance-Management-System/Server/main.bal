@@ -85,6 +85,14 @@ service /Performance on new graphql:Listener(9090) {
         return response;
     }
 
+    resource function get getDept(Departments dept1) returns string|error?{
+        map<json> s =<map<json>>dept1.toJson();
+        stream<Departments,error?> dept =  check db->find(Departments_collection,databaseName,s);
+        Departments[] dept_resp = check from var deptInfo in dept select deptInfo;
+        string dept2 = dept_resp.toString();
+        return dept2;
+    }
+
 
 
     // This section is only for add functions
