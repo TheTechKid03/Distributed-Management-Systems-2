@@ -77,6 +77,13 @@ service /Performance on new graphql:Listener(9090) {
         string response = dept_1.toString();
         return response;
     }
+    
+     resource function get getAllKPI() returns string|error?{
+      stream<Key_Performance_Indicators,error?> kpi = check db->find(KPIs_collection);
+        Key_Performance_Indicators[] kpi_1= check from var deptInfo in kpi select deptInfo ;
+        string response = kpi_1.toString();
+        return response;
+    }
 
 
 
