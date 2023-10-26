@@ -1,29 +1,37 @@
+// Importing necessary dependencies
 import ballerina/graphql;
 import ballerina/io;
 import ballerinax/mongodb;
 
+
+// This Will be the HOD responsibility
 type Users record {
-    int userId;
-    string firstName;
-    string lastName;
-    string jobTitle;
-    string position;
-    string role;
+    string Employee_id;
+    string First_name;
+    string Last_name;
+    string Job_title;
+    string Position;
+    string Role;
+    string Department;
+    string Supervisor;
+    string Employee_score;
 };
 
-type KPIs record {
-    int kpiId;
-    int userId;
-    string name;
-    float value;
+type Key_Performance_Indicators record {
+    string KPI_id;
+    string KPI_details;
+    string Employee_id;
+    string Grade;
+    string Approved_or_Denied;
 };
 
 type Departments record {
-    int departmentId;
-    string name;
-    float objectivesPercentage;
+    string Department_name;
+    string Department_objective;
 };
 
+
+// Connecting the Mongo Database to our server
 mongodb:ConnectionConfig mongoConfig = {
     connection: {
         host: "localhost",
@@ -37,318 +45,128 @@ mongodb:ConnectionConfig mongoConfig = {
             serverSelectionTimeout: 5000
         }
     },
-    databaseName: "PerformanceManagement"
+    databaseName: "Performance_Management_System"
 };
 
+
+// Setting up the database collections
 mongodb:Client db = check new (mongoConfig);
-configurable string kpiCollection = "KPIs";
-configurable string employeeCollection = "Employees";
-configurable string databaseName = "PerformanceManagement";
+configurable string Users_collection = "Users";
+configurable string KPIs_collection = "Key Performance Indicators";
+configurable string Departments_collection = "Departments";
+configurable string databaseName = "Performance_Management_System";
+
 
 @graphql:ServiceConfig {
     graphiql: {
         enabled: true,
-    // Path is optional, if not provided, it will be dafulted to `/graphiql`.
-    path: "/shopping"
+        // Path is optional, if not provided, it will be dafulted to `/graphiql`.
+        path: "/PMS"
     }
 }
-service /PerformanceManagement on new graphql:Listener(2120) {
-//mutation starts
 
-remote function addDepartment(string name, float objectivesPercentage) returns Departments|error {
-    io:println("addDepartment function invoked");
-    var department = {
-        departmentId: 0,
-        name: name,
-        objectivesPercentage: objectivesPercentage
+
+service /Performance on new graphql:Listener(9090) {
+
+
+
+ // Ignore this code I didnt have a choice
+ resource function get getAllDepartments() returns string|error?{
+      stream<Departments,error?> dept = check db->find(Departments_collection);
+        Departments[] dept_1= check from var deptInfo in dept select deptInfo ;
+        string response = dept_1.toString();
+        return response;
+    }
+    
+     resource function get getAllKPI() returns string|error?{
+      stream<Key_Performance_Indicators,error?> kpi = check db->find(KPIs_collection);
+        Key_Performance_Indicators[] kpi_1= check from var deptInfo in kpi select deptInfo ;
+        string response = kpi_1.toString();
+        return response;
+    }
+
+    resource function get getDept(Departments dept1) returns string|error?{
+        map<json> s =<map<json>>dept1.toJson();
+        stream<Departments,error?> dept =  check db->find(Departments_collection,databaseName,s);
+        Departments[] dept_resp = check from var deptInfo in dept select deptInfo;
+        string dept2 = dept_resp.toString();
+        return dept2;
+    }
+
+
+
+    // This section is only for add functions
+    // Adding an Users
+    remote function Add_a_User(Users newuser) returns error|string {
+        io:println("Add a User function triggered");
+        map<json> doc = <map<json>>newuser.toJson();
+        _ = check db->insert(doc, Users_collection, "");
+        return string `${newuser.First_name + " " + newuser.Last_name} added successfully`;
     };
-    var result = db->insert(department, databaseName, "Departments");
-    if (result is error) {
-        return error("Error while inserting the department");
+
+    // Adding a Department
+    remote function Add_a_Department(Departments newdepartment) returns error|string {
+        io:println("Add a Department function triggered");
+        map<json> doc = <map<json>>newdepartment.toJson();
+        _ = check db->insert(doc, Departments_collection,databaseName);
+        return string `${newdepartment.Department_name} added successfully`;
+    };
+
+
+    // Adding a KPI
+    remote function Add_a_KPI(Key_Performance_Indicators newkpi) returns error|string {
+        io:println("Add a Key Permance Indicator function triggered");
+        map<json> doc = <map<json>>newkpi.toJson();
+        _ = check db->insert(doc, KPIs_collection,databaseName);
+        return string `${newkpi.KPI_id} added successfully`;
+    };
+
+    // This section is only for Delete functions
+    // Deleting a Department Objective
+   remote function Delete_a_department_objective(Departments deleteobjective) returns error|string {
+        map<json> deleteobjectiveDoc = <map<json>>{"$getField": {"Department objective": deleteobjective.Department_objective}};
+       int updatedCount = check db->delete(Departments_collection, databaseName, deleteobjectiveDoc);
+        io:println("Updated Count ", updatedCount);
+        if updatedCount > 0 {
+            return string `${deleteobjective.Department_name} objective deleted successfully`;
+        }
+        return "Failed to delete";
     }
-    return department;
+
+
+    // Deleting an Users KPI
+     remote function Delete_an_employee_KPI(string id) returns error|string {
+        mongodb:Error|int deleteKPI = db->delete(KPIs_collection, databaseName, {id: id}, false);
+        if deleteKPI is mongodb:Error {
+            return error("Failed to delete KPI");
+        } else {
+            if deleteKPI > 0 {
+                return string `${id} deleted successfully`;
+            } else {
+                return string `KPI not found`;
+            }
+        }
+
+    }
+
+
+
+    // This section is only for Update functions
+    // Updating a Department objective
+    remote function Update_a_Department_objective(Departments newobjective) returns error|string {
+        io:println("Update a Department objective function triggered");
+        map<json> doc = <map<json>>newobjective.toJson();
+        _ = check db->update(doc, Departments_collection, databaseName);
+        return string `${newobjective.Department_name} updated successfully`;
+    };
+
+
+    // Updating an Users KPI
+    remote function Update_an_Employees_KPI(Key_Performance_Indicators updatekpi) returns error|string {
+        io:println("Update an Users KPI function triggered");
+        map<json> doc = <map<json>>updatekpi.toJson();
+        _ = check db->update(doc, KPIs_collection, databaseName);
+        return string `${updatekpi.KPI_id} updated successfully`;
+    };
+
 }
-};
-
-// remote function adduser(Users user) returns Users|error {
-//     map<json> employee.toJson();
-//     _= check db->insert(employee, databaseName, "Employees");
-//     return string `${user.firstName} ${user.lastName}`;
-// }
-// function addKPI(int userId, string name, float value) returns KPIs|error {
-//     io:println("addKPI function invoked");
-//     var kpi = {
-//         kpiId: 0,
-//         userId: userId,
-//         name: name,
-//         value: value
-//     };
-//     var result = db->insert(kpi, databaseName, "KPIs");
-//     if (result is error) {
-//         return error("Error while inserting the KPI");
-//     }
-//     return kpi;
-// };
-
-// function addEmployee(int userId, string firstName, string lastName, string jobTitle, string position, string role) returns Users|error {
-//     io:println("addEmployee function invoked");
-//     var employee = {
-//         userId: userId,
-//         firstName: firstName,
-//         lastName: lastName,
-//         jobTitle: jobTitle,
-//         position: position,
-//         role: role
-//     };
-//     var result = db->insert(employee, databaseName, "Employees");
-//     if (result is error) {
-//         return error("Error while inserting the employee");
-//     }
-//     return employee;
-// };
-
-// function getDepartments() returns Departments[]|error {
-//     io:println("getDepartments function invoked");
-//     var result = db->find(databaseName, "Departments");
-//     if (result is error) {
-//         return error("Error while retrieving the departments");
-//     }
-//     return result;
-// };
-
-// function getDepartmentsById(int departmentId) returns Departments|error {
-//     io:println("getDepartmentsById function invoked");
-//     var result = db->findOne(departmentId, databaseName, "Departments");
-//     if (result is error) {
-//         return error("Error while retrieving the department");
-//     }
-//     return result;
-// }
-
-// remote function getKPIs(int userId) returns KPIs[]|error {
-//     io:println("getKPIs function invoked");
-//     var result = db->find(userId, databaseName, "KPIs");
-//     if (result is error) {
-//         return error("Error while retrieving the KPIs");
-//     }
-//     return result;
-// };
-// remote function updateKPI(int kpiId, int userId, string name, float value) returns KPIs|error {
-//     io:println("updateKPI function invoked");
-//     var kpi = {
-//         kpiId: kpiId,
-//         userId: userId,
-//         name: name,
-//         value: value
-//     };
-//     var result = db->update(kpi, databaseName, "KPIs");
-//     if (result is error) {
-//         return error("Error while updating the KPI");
-//     }
-//     return kpi;
-// };
-// remote function deleteKPI(int kpiId) returns boolean|error {
-//     io:println("deleteKPI function invoked");
-//     var result = db->deleteOne(kpiId, databaseName, "KPIs");
-//     if (result is error) {
-//         return error("Error while deleting the KPI");
-//     }
-//     return result;
-// };
-// remote function getEmployees() returns Users[]|error {
-//     io:println("getEmployees function invoked");
-//     var result = db->find(databaseName, "Employees");
-//     if (result is error) {
-//         return error("Error while retrieving the employees");
-//     }
-//     return result;
-// };
-// remote function getEmployeeById(int userId) returns Users|error {
-//     io:println("getEmployeeById function invoked");
-//     var result = db->findOne(userId, databaseName, "Employees");
-//     if (result is error) {
-//         return error("Error while retrieving the employee");
-//     }
-//     return result;
-// };
-// remote function updateEmployee(int userId, string firstName, string lastName, string jobTitle, string position, string role) returns Users|error {
-//     io:println("updateEmployee function invoked");
-//     var employee = {
-//         userId: userId,
-//         firstName: firstName,
-//         lastName: lastName,
-//         jobTitle: jobTitle,
-//         position: position,
-//         role: role
-//     };
-//     var result = db->update(employee, databaseName, "Employees");
-//     if (result is error) {
-//         return error("Error while updating the employee");
-//     }
-//     return employee;
-// };
-// remote function deleteEmployee(int userId) returns boolean|error {
-//     io:println("deleteEmployee function invoked");
-//     var result = db->deleteOne(userId, databaseName, "Employees");
-//     if (result is error) {
-//         return error("Error while deleting the employee");
-//     }
-//     return result;
-// };
-// remote function addKPIToEmployee(int kpiId, int userId) returns boolean|error {
-//     io:println("addKPIToEmployee function invoked");
-//     var result = db->update(kpiId, userId, databaseName, "Employees");
-//     if (result is error) {
-//         return error("Error while adding the KPI to the employee");
-//     }
-//     return result;
-// };
-// remote function removeKPIFromEmployee(int kpiId, int userId) returns boolean|error {
-//     io:println("removeKPIFromEmployee function invoked");
-//     var result = db->update(kpiId, userId, databaseName, "Employees");
-//     if (result is error) {
-//         return error("Error while removing the KPI from the employee");
-//     }
-//     return result;
-// };
-// remote function getEmployeeKPIs(int userId) returns KPIs[]|error {
-//     io:println("getEmployeeKPIs function invoked");
-//     var result = db->find(userId, databaseName, "Employees");
-//     if (result is error) {
-//         return error("Error while retrieving the employee KPIs");
-//     }
-//     return result;
-// };
-// remote function getDepartmentKPIs(int departmentId) returns KPIs[]|error {
-//     io:println("getDepartmentKPIs function invoked");
-//     var result = db->find(departmentId, databaseName, "Departments");
-//     if (result is error) {
-//         return error("Error while retrieving the department KPIs");
-//     }
-//     return result;
-// };
-// remote function addDepartment(int departmentId, string name) returns Departments|error {
-//     io:println("addDepartment function invoked");
-//     var department = {
-//         departmentId: departmentId,
-//         name: name
-//     };
-//     var result = db->insert(department, databaseName, "Departments");
-//     if (result is error) {
-//         return error("Error while inserting the department");
-//     }
-//     return department;
-// };
-// remote function updateDepartment(int departmentId, string name) returns Departments|error {
-//     io:println("updateDepartment function invoked");
-//     var department = {
-//         departmentId: departmentId,
-//         name: name
-//     };
-//     var result = db->update(department, databaseName, "Departments");
-//     if (result is error) {
-//         return error("Error while updating the department");
-//     }
-//     return department;
-// };
-// remote function deleteDepartment(int departmentId) returns boolean|error {
-//     io:println("deleteDepartment function invoked");
-//     var result = db->deleteOne(departmentId, databaseName, "Departments");
-//     if (result is error) {
-//         return error("Error while deleting the department");
-//     }
-//     return result;
-// };
-// remote function addKPI(int kpiId, int userId, string name, float value) returns KPIs|error {
-//     io:println("addKPI function invoked");
-//     var kpi = {
-//         kpiId: kpiId,
-//         userId: userId,
-//         name: name,
-//         value: value
-//     };
-//     var result = db->insert(kpi, databaseName, "KPIs");
-//     if (result is error) {
-//         return error("Error while inserting the KPI");
-//     }
-//     return kpi;
-// };
-// remote function addEmployee(int userId, string firstName, string lastName, string jobTitle, string position, string role) returns Users|error {
-//     io:println("addEmployee function invoked");
-//     var employee = {
-//         userId: userId,
-//         firstName: firstName,
-//         lastName: lastName,
-//         jobTitle: jobTitle,
-//         position: position,
-//         role: role
-//     };
-//     var result = db->insert(employee, databaseName, "Employees");
-//     if (result is error) {
-//         return error("Error while inserting the employee");
-//     }
-//     return employee;
-// };
-// remote function updateKPI(int kpiId, int userId, string name, float value) returns KPIs|error {
-//     io:println("updateKPI function invoked");
-//     var kpi = {
-//         kpiId: kpiId,
-//         userId: userId,
-//         name: name,
-//         value: value
-//     };
-//     var result = db->update(kpi, databaseName, "KPIs");
-//     if (result is error) {
-//         return error("Error while updating the KPI");
-//     }
-//     return kpi;
-// };
-// remote function deleteKPI(int kpiId) returns boolean|error {
-//     io:println("deleteKPI function invoked");
-//     var result = db->deleteOne(kpiId, databaseName, "KPIs");
-//     if (result is error) {
-//         return error("Error while deleting the KPI");
-//     }
-//     return result;
-// };
-// remote function getKPIById(int kpiId) returns KPIs|error {
-//     io:println("getKPIById function invoked");
-//     var result = db->findOne(kpiId, databaseName, "KPIs");
-//     if (result is error) {
-//         return error("Error while retrieving the KPI");
-//     }
-//     return result;
-// };
-// remote function getKPIs() returns KPIs[]|error {
-//     io:println("getKPIs function invoked");
-//     var result = db->getAll(databaseName, "KPIs");
-//     if (result is error) {
-//         return error("Error while retrieving the KPIs");
-//     }
-//     return result;
-// };
-// remote function getEmployeeById(int userId) returns Users|error {
-//     io:println("getEmployeeById function invoked");
-//     var result = db->findOne(userId, databaseName, "Employees");
-//     if (result is error) {
-//         return error("Error while retrieving the employee");
-//     }
-//     return result;
-// };
-// remote function getEmployees() returns Users[]|error {
-//     io:println("getEmployees function invoked");
-//     var result = db->getAll(databaseName, "Employees");
-//     if (result is error) {
-//         return error("Error while retrieving the employees");
-//     }
-//     return result;
-// };
-// remote function getDepartmentById(int departmentId) returns Departments|error {
-//     io:println("getDepartmentById function invoked");
-//     var result = db->findOne(departmentId, databaseName, "Departments");
-//     if (result is error) {
-//         return error("Error while retrieving the department");
-//     }
-//     return result as Departments;
-//     return result;
-// }
