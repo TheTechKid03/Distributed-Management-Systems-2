@@ -1,5 +1,5 @@
 services:
-  
+
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     environment:
@@ -36,7 +36,7 @@ services:
       - mongo-data:/data/db
 
   logistics_service:
-    build: ./Services/Logistics_Service
+    build: ./Logistics-System/Services/Logistics_Service
     ports:
       - "8080:8080"
     depends_on:
@@ -44,21 +44,21 @@ services:
       - mongo
 
   standard_delivery:
-    build: ./Services/Standard_Delivery
+    build: ./Logistics-System/Services/Standard_Delivery
     ports:
       - "8081:8081"
     depends_on:
       - kafka
 
   express_delivery:
-    build: ./Services/Express_Delivery
+    build: ./Logistics-System/Services/Express_Delivery
     ports:
       - "8082:8082"
     depends_on:
       - kafka
 
   international_delivery:
-    build: ./Services/International_Delivery
+    build: ./Logistics-System/Services/International_Delivery
     ports:
       - "8083:8083"
     depends_on:
