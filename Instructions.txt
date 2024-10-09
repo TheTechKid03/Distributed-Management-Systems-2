@@ -1,12 +1,14 @@
-2. install Ballerina Swan Lake 10 + Extension
+1. install Ballerina Swan Lake 10 + Extension
 
-1. Install Docker Desktop + Extension
+2. Install Docker Desktop + Extension
 
-2. Install Mongodb Community Edition + Extension
+3. Install Mongodb Community Edition + Extension
     - Connect using mongodb://localhost:27017/
 
 4. Pull Kafka + Zookeeper + Mongodb Docker images
     -  docker-compose up -d
+    -  docker-compose build
 
-3. 
-5. 
+5. Add Mongodb Extension in Docker
+
+6. 
