@@ -44,7 +44,7 @@ service on internationalDeliveryListener {
                 auth: <mongodb:ScramSha256AuthCredential>{
                     username: "<username>",
                     password: "<password>",
-                    database: "admin"
+                    database: "logisticsDB"
                 }
             }
         });
