@@ -6,6 +6,7 @@
     - Connect using mongodb://localhost:27017/
 
 4. Pull Kafka + Zookeeper + Mongodb Docker images
+    -  docker-compose down
     -  docker-compose up -d
     -  docker-compose build
 

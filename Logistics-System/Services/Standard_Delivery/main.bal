@@ -39,11 +39,6 @@ service on standardDeliveryListener {
                 serverAddress: {
                     host: "localhost",
                     port: 27017
-                },
-                auth: <mongodb:ScramSha256AuthCredential>{
-                    username: "root",
-                    password: "rootpassword",
-                    database: "admin"
                 }
             }
         });
