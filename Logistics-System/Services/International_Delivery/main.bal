@@ -42,9 +42,9 @@ service on internationalDeliveryListener {
                     port: 27017
                 },
                 auth: <mongodb:ScramSha256AuthCredential>{
-                    username: "<username>",
-                    password: "<password>",
-                    database: "logisticsDB"
+                    username: "root",
+                    password: "rootpassword",
+                    database: "admin"
                 }
             }
         });

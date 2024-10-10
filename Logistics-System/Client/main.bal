@@ -17,7 +17,7 @@ http:Client logisticsClient = check new ("http://localhost:8080/logistics");
 // Function to read input from terminal
 function readInput(string prompt) returns string {
     io:print(prompt);
-    return io:readln(); 
+    return io:readln();
 }
 
 // Main function
@@ -39,12 +39,16 @@ public function main() returns error? {
     request.preferredTime = readInput("Enter preferred time: ");
 
     // Send the delivery request to the logistics service
-    // Wrap the request in an array and specify targetType
-    var response = logisticsClient->post("/scheduleDelivery", [request], targetType = http:Response); 
+    var response = logisticsClient->post("/scheduleDelivery", [request], targetType = http:Response);
 
+    // Check the response
     if (response is http:Response) {
         var responseBody = response.getJsonPayload();
-        log:printInfo("Response: " + (check responseBody).toString());
+        if (responseBody is json) {
+            log:printInfo("Response: " + responseBody.toString());
+        } else {
+            log:printError("Failed to retrieve JSON payload.");
+        }
     } else {
         log:printError("Error in sending request: " + response.toString());
     }
